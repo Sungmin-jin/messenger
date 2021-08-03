@@ -11,8 +11,18 @@ router.post("/", async (req, res, next) => {
     const senderId = req.user.id;
     const { recipientId, text, conversationId, sender } = req.body;
 
-    // if we already know conversation id, we can save time and just add it to message and return
+    // if we already know conversation id,
+    // check if the conversations exists and found conversation belongs to the sender
     if (conversationId) {
+      const conversation = await Conversation.findByPk(conversationId);
+      if (
+        !conversation ||
+        (conversation.dataValues.user1Id !== senderId &&
+          conversation.dataValues.user2Id !== senderId)
+      ) {
+        return res.sendStatus(405);
+      }
+
       const message = await Message.create({ senderId, text, conversationId });
       return res.json({ message, sender });
     }
