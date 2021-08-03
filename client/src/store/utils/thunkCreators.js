@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  clearUnReadChats,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -112,6 +113,18 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
     dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+export const readMessages = (conversationId) => async (dispatch) => {
+  try {
+    console.log("read message from thunk");
+    const res = await axios.post("/api/messages/read", { conversationId });
+    if (res.data.success) {
+      dispatch(clearUnReadChats(conversationId));
+    }
   } catch (error) {
     console.error(error);
   }

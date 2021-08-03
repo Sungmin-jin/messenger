@@ -1,14 +1,14 @@
 export const addMessageToStore = (state, payload) => {
-  // sender == thomas
-  // message == hi julia first message
-  const { message, sender } = payload;
+  const { message, sender, fromSocket } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      unReadChats: 1,
     };
+    console.log("message from socket from socket", message);
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
   }
@@ -17,7 +17,9 @@ export const addMessageToStore = (state, payload) => {
       const convoCopy = { ...convo };
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-
+      if (fromSocket) {
+        convoCopy.unReadChats++;
+      }
       return convoCopy;
     } else {
       return convo;
@@ -61,7 +63,7 @@ export const addSearchedUsersToStore = (state, users) => {
   users.forEach((user) => {
     // only create a fake convo if we don't already have a convo with this user
     if (!currentUsers[user.id]) {
-      let fakeConvo = { otherUser: user, messages: [] };
+      let fakeConvo = { otherUser: user, messages: [], unReadChats: 0 };
       newState.push(fakeConvo);
     }
   });
@@ -76,6 +78,18 @@ export const addNewConvoToStore = (state, recipientId, message) => {
       newConvo.id = message.conversationId;
       newConvo.messages.push(message);
       newConvo.latestMessageText = message.text;
+      return newConvo;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const clearUnreadChatsFromStore = (state, conversationId) => {
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const newConvo = { ...convo };
+      newConvo.unReadChats = 0;
       return newConvo;
     } else {
       return convo;

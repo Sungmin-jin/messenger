@@ -1,8 +1,8 @@
 const router = require("express").Router();
 const { User, Conversation, Message } = require("../../db/models");
-const { Op } = require("sequelize");
+const { Op, literal } = require("sequelize");
 const onlineUsers = require("../../onlineUsers");
-
+const db = require("../../db");
 const conversationCompare = (convo1, convo2) => {
   return (
     convo2.messages[convo2.messages.length - 1].createdAt -
@@ -18,6 +18,8 @@ router.get("/", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
+
+    console.log("routes start");
     const userId = req.user.id;
     const conversations = await Conversation.findAll({
       where: {
@@ -57,6 +59,25 @@ router.get("/", async (req, res, next) => {
       ],
     });
 
+    // const testConversation = await Conversation.findAll({
+    //   attributes: {
+    //     include: [
+    //       [
+    //         literal(`(
+    //           SELECT COUNT(*)
+    //           FROM messages AS msg
+    //           WHERE
+    //               msg.isRead != conversation.id
+
+    //       )`),
+    //         "unReadChatCount",
+    //       ],
+    //     ],
+    //   },
+    // });
+
+    // console.log(JSON.stringify(testConversation, null, 2));
+
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];
       const convoJSON = convo.toJSON();
@@ -77,6 +98,11 @@ router.get("/", async (req, res, next) => {
         convoJSON.otherUser.online = false;
       }
 
+      const unReadChats = convo.messages.reduce(
+        (acc, msg) => (msg.senderId !== userId && !msg.isRead ? ++acc : acc),
+        0
+      );
+      convoJSON.unReadChats = unReadChats;
       // set properties for notification count and latest message preview
       convoJSON.latestMessageText =
         convoJSON.messages[convoJSON.messages.length - 1].text;
