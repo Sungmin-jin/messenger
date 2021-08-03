@@ -83,6 +83,7 @@ router.get("/", async (req, res, next) => {
       conversations[i] = convoJSON;
     }
 
+    //sort the conversation in descending order by its last message's createdAt attribute
     conversations.sort(
       (convo1, convo2) =>
         convo2.messages[convo2.messages.length - 1].createdAt -
