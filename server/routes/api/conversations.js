@@ -18,8 +18,6 @@ router.get("/", async (req, res, next) => {
     if (!req.user) {
       return res.sendStatus(401);
     }
-
-    console.log("routes start");
     const userId = req.user.id;
     const conversations = await Conversation.findAll({
       where: {
@@ -58,25 +56,6 @@ router.get("/", async (req, res, next) => {
         },
       ],
     });
-
-    // const testConversation = await Conversation.findAll({
-    //   attributes: {
-    //     include: [
-    //       [
-    //         literal(`(
-    //           SELECT COUNT(*)
-    //           FROM messages AS msg
-    //           WHERE
-    //               msg.isRead != conversation.id
-
-    //       )`),
-    //         "unReadChatCount",
-    //       ],
-    //     ],
-    //   },
-    // });
-
-    // console.log(JSON.stringify(testConversation, null, 2));
 
     for (let i = 0; i < conversations.length; i++) {
       const convo = conversations[i];

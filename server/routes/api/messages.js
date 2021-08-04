@@ -54,14 +54,30 @@ router.post("/", async (req, res, next) => {
   }
 });
 
+// excepts {conversationId} in body
 router.post("/read", async (req, res) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
     }
     const { conversationId } = req.body;
-    console.log("read routes", req.body);
+
+    //if there is no conversationId, send bad request status
+    if (!conversationId) {
+      return res.sendStatus(400);
+    }
+
     const senderId = req.user.id;
+
+    //check if conversation does not belong to the user
+    const conversation = await Conversation.findByPk(conversationId);
+    if (
+      conversation.user1Id !== senderId &&
+      conversation.user2Id !== senderId
+    ) {
+      return res.sendStatus(403);
+    }
+    //update all the unread
     const result = await Message.update(
       {
         isRead: true,

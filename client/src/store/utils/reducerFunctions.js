@@ -8,7 +8,6 @@ export const addMessageToStore = (state, payload) => {
       messages: [message],
       unReadChats: 1,
     };
-    console.log("message from socket from socket", message);
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
   }
@@ -99,7 +98,6 @@ export const clearUnreadChatsFromStore = (state, conversationId) => {
 
 export const clearMyUnreadChatsFromStore = (state, payload) => {
   const { conversationId, readerId } = payload;
-  console.log("payload from socket", payload);
   return state.map((convo) => {
     if (convo.id === conversationId) {
       const newConvo = { ...convo };

@@ -38,7 +38,10 @@ const Messages = (props) => {
     }
   }, options);
 
-  const lastReadMessageIndex = CalclastReadMessageIndex(messages, userId);
+  const lastReadMessageIndex = useMemo(
+    () => CalclastReadMessageIndex(messages, userId),
+    [messages, userId]
+  );
 
   useEffect(() => {
     if (divRef.current) observer.observe(divRef.current);
