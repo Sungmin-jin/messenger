@@ -6,7 +6,6 @@ import { readMessages } from "../../store/utils/thunkCreators";
 import { useDispatch } from "react-redux";
 
 const CalclastReadMessageIndex = (messages, userId) => {
-  console.log("caculate read messageIndex");
   for (let i = messages.length - 1; i >= 0; i--) {
     if (messages[i].senderId === userId && messages[i].isRead) {
       return i;
@@ -26,24 +25,23 @@ const Messages = (props) => {
     threshold: 0,
   };
 
-  const observer = new IntersectionObserver((entries) => {
-    const [entry] = entries;
-    if (entry.isIntersecting) {
-      if (unReadChats !== 0) {
-        console.log("Messages read");
-        dispatch(readMessages(conversationId, userId));
-      } else {
-        observer.disconnect();
-      }
-    }
-  }, options);
-
   const lastReadMessageIndex = useMemo(
     () => CalclastReadMessageIndex(messages, userId),
     [messages, userId]
   );
 
   useEffect(() => {
+    const observer = new IntersectionObserver((entries) => {
+      const [entry] = entries;
+      if (entry.isIntersecting) {
+        if (unReadChats !== 0) {
+          dispatch(readMessages(conversationId, userId));
+        } else {
+          observer.disconnect();
+        }
+      }
+    }, options);
+
     if (divRef.current) observer.observe(divRef.current);
     return () => observer.disconnect();
   }, [unReadChats]);

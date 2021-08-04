@@ -16,12 +16,16 @@ router.post("/", async (req, res, next) => {
     // check if the conversations exists and found conversation belongs to the sender
     if (conversationId) {
       const conversation = await Conversation.findByPk(conversationId);
+
+      if (!conversation) {
+        return res.sendStatus(404);
+      }
+
       if (
-        !conversation ||
-        (conversation.dataValues.user1Id !== senderId &&
-          conversation.dataValues.user2Id !== senderId)
+        conversation.user1Id !== senderId &&
+        conversation.user2Id !== senderId
       ) {
-        return res.sendStatus(405);
+        return res.sendStatus(403);
       }
 
       const message = await Message.create({ senderId, text, conversationId });
@@ -95,7 +99,6 @@ router.post("/read", async (req, res) => {
       success: true,
     });
   } catch (error) {
-    console.log(error);
     next(error);
   }
 });
