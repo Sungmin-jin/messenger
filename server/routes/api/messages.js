@@ -59,7 +59,7 @@ router.post("/", async (req, res, next) => {
 });
 
 // excepts {conversationId} in body
-router.post("/read", async (req, res) => {
+router.put("/read", async (req, res) => {
   try {
     if (!req.user) {
       return res.sendStatus(401);
@@ -82,7 +82,7 @@ router.post("/read", async (req, res) => {
       return res.sendStatus(403);
     }
     //update all the unread
-    const result = await Message.update(
+    await Message.update(
       {
         isRead: true,
       },

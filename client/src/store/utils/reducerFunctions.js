@@ -6,7 +6,7 @@ export const addMessageToStore = (state, payload) => {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
-      unReadChats: 1,
+      unReadCount: 1,
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
@@ -17,7 +17,7 @@ export const addMessageToStore = (state, payload) => {
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
       if (fromSocket) {
-        convoCopy.unReadChats++;
+        convoCopy.unReadCount++;
       }
       return convoCopy;
     } else {
@@ -62,7 +62,7 @@ export const addSearchedUsersToStore = (state, users) => {
   users.forEach((user) => {
     // only create a fake convo if we don't already have a convo with this user
     if (!currentUsers[user.id]) {
-      let fakeConvo = { otherUser: user, messages: [], unReadChats: 0 };
+      let fakeConvo = { otherUser: user, messages: [], unReadCount: 0 };
       newState.push(fakeConvo);
     }
   });
@@ -88,7 +88,7 @@ export const clearUnreadChatsFromStore = (state, conversationId) => {
   return state.map((convo) => {
     if (convo.id === conversationId) {
       const newConvo = { ...convo };
-      newConvo.unReadChats = 0;
+      newConvo.unReadCount = 0;
       return newConvo;
     } else {
       return convo;

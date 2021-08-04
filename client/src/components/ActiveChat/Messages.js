@@ -5,7 +5,7 @@ import moment from "moment";
 import { readMessages } from "../../store/utils/thunkCreators";
 import { useDispatch } from "react-redux";
 
-const CalclastReadMessageIndex = (messages, userId) => {
+const calclastReadMessageIndex = (messages, userId) => {
   for (let i = messages.length - 1; i >= 0; i--) {
     if (messages[i].senderId === userId && messages[i].isRead) {
       return i;
@@ -15,8 +15,8 @@ const CalclastReadMessageIndex = (messages, userId) => {
 };
 
 const Messages = (props) => {
-  const { messages, otherUser, userId, conversationId, unReadChats } = props;
-  const divRef = useRef();
+  const { messages, otherUser, userId, conversationId, unReadCount } = props;
+  const readObserveRef = useRef();
   const dispatch = useDispatch();
 
   const options = {
@@ -26,15 +26,17 @@ const Messages = (props) => {
   };
 
   const lastReadMessageIndex = useMemo(
-    () => CalclastReadMessageIndex(messages, userId),
+    () => calclastReadMessageIndex(messages, userId),
     [messages, userId]
   );
 
   useEffect(() => {
+    //observe that user reads the messages or not using intersection observer
     const observer = new IntersectionObserver((entries) => {
       const [entry] = entries;
+      //if there is readObserveRef in users display, dispatch readMessages action
       if (entry.isIntersecting) {
-        if (unReadChats !== 0) {
+        if (unReadCount !== 0) {
           dispatch(readMessages(conversationId, userId));
         } else {
           observer.disconnect();
@@ -42,9 +44,9 @@ const Messages = (props) => {
       }
     }, options);
 
-    if (divRef.current) observer.observe(divRef.current);
+    if (readObserveRef.current) observer.observe(readObserveRef.current);
     return () => observer.disconnect();
-  }, [unReadChats]);
+  }, [unReadCount]);
 
   return (
     <Box>
@@ -72,7 +74,7 @@ const Messages = (props) => {
           />
         );
       })}
-      <div ref={divRef}></div>
+      <div ref={readObserveRef}></div>
     </Box>
   );
 };

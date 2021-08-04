@@ -121,7 +121,7 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
 //when user read unread messages, update the databse and reducer
 export const readMessages = (conversationId, readerId) => async (dispatch) => {
   try {
-    const res = await axios.post("/api/messages/read", { conversationId });
+    const res = await axios.put("/api/messages/read", { conversationId });
     if (res.data.success) {
       dispatch(clearUnReadChats(conversationId));
       //notify that the user reads the message throughout the socket
