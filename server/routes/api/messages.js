@@ -17,7 +17,7 @@ router.post("/", async (req, res, next) => {
       const conversation = await Conversation.findByPk(conversationId);
 
       if (!conversation) {
-        res.sendStatus(404);
+        return res.sendStatus(404);
       }
 
       if (
