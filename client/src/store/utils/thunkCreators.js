@@ -118,12 +118,13 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   }
 };
 
-export const readMessages = (conversationId) => async (dispatch) => {
+export const readMessages = (conversationId, readerId) => async (dispatch) => {
   try {
-    console.log("read message from thunk");
     const res = await axios.post("/api/messages/read", { conversationId });
     if (res.data.success) {
       dispatch(clearUnReadChats(conversationId));
+      console.log("sending data to socket");
+      socket.emit("read-chats", conversationId, readerId);
     }
   } catch (error) {
     console.error(error);

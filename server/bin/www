@@ -41,6 +41,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("new-message", (data) => {
+    console.log("new message");
     socket.broadcast.emit("new-message", {
       message: data.message,
       sender: data.sender,
@@ -53,6 +54,11 @@ io.on("connection", (socket) => {
       onlineUsers.splice(userIndex, 1);
       socket.broadcast.emit("remove-offline-user", id);
     }
+  });
+
+  socket.on("read-chats", (conversationId, readerId) => {
+    console.log("got data from client");
+    socket.broadcast.emit("read-chats", { conversationId, readerId });
   });
 });
 

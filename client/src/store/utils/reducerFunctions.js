@@ -96,3 +96,22 @@ export const clearUnreadChatsFromStore = (state, conversationId) => {
     }
   });
 };
+
+export const clearMyUnreadChatsFromStore = (state, payload) => {
+  const { conversationId, readerId } = payload;
+  console.log("payload from socket", payload);
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const newConvo = { ...convo };
+      newConvo.messages = convo.messages.map((msg) => {
+        if (msg.senderId !== readerId) {
+          msg.isRead = true;
+        }
+        return msg;
+      });
+      return newConvo;
+    } else {
+      return convo;
+    }
+  });
+};

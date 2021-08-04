@@ -1,9 +1,19 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useMemo } from "react";
 import { Box } from "@material-ui/core";
 import { SenderBubble, OtherUserBubble } from "../ActiveChat";
 import moment from "moment";
 import { readMessages } from "../../store/utils/thunkCreators";
-import { connect, useDispatch } from "react-redux";
+import { useDispatch } from "react-redux";
+
+const CalclastReadMessageIndex = (messages, userId) => {
+  console.log("caculate read messageIndex");
+  for (let i = messages.length - 1; i >= 0; i--) {
+    if (messages[i].senderId === userId && messages[i].isRead) {
+      return i;
+    }
+  }
+  return null;
+};
 
 const Messages = (props) => {
   const { messages, otherUser, userId, conversationId, unReadChats } = props;
@@ -21,12 +31,14 @@ const Messages = (props) => {
     if (entry.isIntersecting) {
       if (unReadChats !== 0) {
         console.log("Messages read");
-        dispatch(readMessages(conversationId));
+        dispatch(readMessages(conversationId, userId));
       } else {
         observer.disconnect();
       }
     }
   }, options);
+
+  const lastReadMessageIndex = CalclastReadMessageIndex(messages, userId);
 
   useEffect(() => {
     if (divRef.current) observer.observe(divRef.current);
@@ -35,8 +47,18 @@ const Messages = (props) => {
 
   return (
     <Box>
-      {messages.map((message) => {
+      {messages.map((message, index) => {
         const time = moment(message.createdAt).format("h:mm");
+        if (index === lastReadMessageIndex) {
+          return (
+            <SenderBubble
+              key={message.id}
+              text={message.text}
+              time={time}
+              otherUserPhotoUrl={otherUser.photoUrl}
+            />
+          );
+        }
 
         return message.senderId === userId ? (
           <SenderBubble key={message.id} text={message.text} time={time} />

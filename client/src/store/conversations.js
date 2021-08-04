@@ -5,6 +5,7 @@ import {
   removeOfflineUserFromStore,
   addMessageToStore,
   clearUnreadChatsFromStore,
+  clearMyUnreadChatsFromStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -17,6 +18,7 @@ const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
 const CLEAR_UNREAD_CHATS = "CLEAR_UNREAD_CHATS";
+const READ_MY_CHATS = "READ_MY_CHATS";
 
 // ACTION CREATORS
 
@@ -80,6 +82,14 @@ export const clearUnReadChats = (conversationId) => {
   };
 };
 
+//data contains conversationId, readerId
+export const readMyChats = (data) => {
+  return {
+    type: READ_MY_CHATS,
+    payload: data,
+  };
+};
+
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -106,6 +116,8 @@ const reducer = (state = [], action) => {
       );
     case CLEAR_UNREAD_CHATS:
       return clearUnreadChatsFromStore(state, action.payload.conversationId);
+    case READ_MY_CHATS:
+      return clearMyUnreadChatsFromStore(state, action.payload);
     default:
       return state;
   }
