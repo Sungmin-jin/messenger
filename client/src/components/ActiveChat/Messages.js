@@ -26,7 +26,7 @@ const Messages = (props) => {
   };
 
   const lastReadMessageIndex = useMemo(
-    () => calclastReadMessageIndex(messages, userId),
+    () => calclastReadMessageIndex(messages, userId, otherUser.id),
     [messages, userId]
   );
 
@@ -37,7 +37,7 @@ const Messages = (props) => {
       //if there is readObserveRef in users display, dispatch readMessages action
       if (entry.isIntersecting) {
         if (unReadCount !== 0) {
-          dispatch(readMessages(conversationId, userId));
+          dispatch(readMessages(conversationId, userId, otherUser.id));
         } else {
           observer.disconnect();
         }
