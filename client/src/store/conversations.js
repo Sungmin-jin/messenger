@@ -4,6 +4,8 @@ import {
   addSearchedUsersToStore,
   removeOfflineUserFromStore,
   addMessageToStore,
+  clearUnreadChatsFromStore,
+  clearMyUnreadChatsFromStore,
 } from "./utils/reducerFunctions";
 
 // ACTIONS
@@ -15,6 +17,8 @@ const REMOVE_OFFLINE_USER = "REMOVE_OFFLINE_USER";
 const SET_SEARCHED_USERS = "SET_SEARCHED_USERS";
 const CLEAR_SEARCHED_USERS = "CLEAR_SEARCHED_USERS";
 const ADD_CONVERSATION = "ADD_CONVERSATION";
+const CLEAR_UNREAD_CHATS = "CLEAR_UNREAD_CHATS";
+const READ_MY_CHATS = "READ_MY_CHATS";
 
 // ACTION CREATORS
 
@@ -25,10 +29,14 @@ export const gotConversations = (conversations) => {
   };
 };
 
-export const setNewMessage = (message, sender) => {
+export const setNewMessage = (message, sender, fromSocket) => {
   return {
     type: SET_MESSAGE,
-    payload: { message, sender: sender || null },
+    payload: {
+      message,
+      sender: sender || null,
+      fromSocket: fromSocket || false,
+    },
   };
 };
 
@@ -67,6 +75,21 @@ export const addConversation = (recipientId, newMessage) => {
   };
 };
 
+export const clearUnReadChats = (conversationId) => {
+  return {
+    type: CLEAR_UNREAD_CHATS,
+    payload: { conversationId },
+  };
+};
+
+//data contains conversationId, readerId
+export const readMyChats = (data) => {
+  return {
+    type: READ_MY_CHATS,
+    payload: data,
+  };
+};
+
 // REDUCER
 
 const reducer = (state = [], action) => {
@@ -91,6 +114,10 @@ const reducer = (state = [], action) => {
         action.payload.recipientId,
         action.payload.newMessage
       );
+    case CLEAR_UNREAD_CHATS:
+      return clearUnreadChatsFromStore(state, action.payload.conversationId);
+    case READ_MY_CHATS:
+      return clearMyUnreadChatsFromStore(state, action.payload);
     default:
       return state;
   }

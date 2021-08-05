@@ -5,6 +5,7 @@ import {
   addConversation,
   setNewMessage,
   setSearchedUsers,
+  clearUnReadChats,
 } from "../conversations";
 import { gotUser, setFetchingStatus } from "../user";
 
@@ -112,6 +113,20 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
   try {
     const { data } = await axios.get(`/api/users/${searchTerm}`);
     dispatch(setSearchedUsers(data));
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+//when user read unread messages, update the databse and reducer
+export const readMessages = (conversationId, readerId) => async (dispatch) => {
+  try {
+    const res = await axios.put("/api/messages/read", { conversationId });
+    if (res.data.success) {
+      dispatch(clearUnReadChats(conversationId));
+      //notify that the user reads the message throughout the socket
+      socket.emit("read-chats", conversationId, readerId);
+    }
   } catch (error) {
     console.error(error);
   }
