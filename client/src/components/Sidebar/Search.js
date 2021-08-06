@@ -24,32 +24,57 @@ const styles = {
   },
 };
 
-class Search extends Component {
-  handleSubmit = (event) => {
-    event.preventDefault();
+// class Search extends Component {
+//   handleSubmit = (event) => {
+//     event.preventDefault();
+//   };
+
+//   render() {
+//     const { classes } = this.props;
+//     return (
+//       <form onSubmit={this.handleSubmit}>
+//         <FormControl fullWidth hiddenLabel>
+//           <FilledInput
+//             name="search"
+//             onChange={this.props.handleChange}
+//             classes={{ root: classes.filledInput, input: classes.input }}
+//             disableUnderline
+//             placeholder="Search"
+//             startAdornment={
+//               <InputAdornment position="start">
+//                 <SearchIcon />
+//               </InputAdornment>
+//             }
+//           ></FilledInput>
+//         </FormControl>
+//       </form>
+//     );
+//   }
+// }
+
+const Search = ({ classes, handleChange }) => {
+  const handleSubmit = (e) => {
+    e.preventDefault();
   };
 
-  render() {
-    const { classes } = this.props;
-    return (
-      <form onSubmit={this.handleSubmit}>
-        <FormControl fullWidth hiddenLabel>
-          <FilledInput
-            name="search"
-            onChange={this.props.handleChange}
-            classes={{ root: classes.filledInput, input: classes.input }}
-            disableUnderline
-            placeholder="Search"
-            startAdornment={
-              <InputAdornment position="start">
-                <SearchIcon />
-              </InputAdornment>
-            }
-          ></FilledInput>
-        </FormControl>
-      </form>
-    );
-  }
-}
+  return (
+    <form onSubmit={handleSubmit}>
+      <FormControl fullWidth hiddenLabel>
+        <FilledInput
+          name="search"
+          onChange={handleChange}
+          classes={{ root: classes.filledInput, input: classes.input }}
+          disableUnderline
+          placeholder="Search"
+          startAdornment={
+            <InputAdornment position="start">
+              <SearchIcon />
+            </InputAdornment>
+          }
+        ></FilledInput>
+      </FormControl>
+    </form>
+  );
+};
 
 export default withStyles(styles)(Search);
