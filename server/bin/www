@@ -36,6 +36,7 @@ const io = require("socket.io")(server, {
   },
 });
 
+//middleware check if user is a valid or not
 io.use((socket, next) => {
   if (socket.handshake.auth?.token) {
     jwt.verify(
@@ -56,8 +57,10 @@ io.use((socket, next) => {
 io.on("connection", (socket) => {
   socket.on("go-online", () => {
     const id = socket.userId;
+    //check if any of the user is online
     if (!onlineUsers[id]) {
       onlineUsers[id] = [socket.id];
+      //if a user is online and login with different device add the user into the array
     } else if (onlineUsers[id] && !onlineUsers[id].includes(socket.id)) {
       onlineUsers[id] = [...onlineUsers[id], socket.id];
     }
@@ -68,7 +71,6 @@ io.on("connection", (socket) => {
   socket.on("new-message", (data) => {
     const id = socket.userId;
     const { message, sender, recipientId } = data;
-
     const myOtherDevices = onlineUsers[id].filter(
       (socketId) => socketId != socket.id
     );
@@ -113,11 +115,6 @@ io.on("connection", (socket) => {
         socket.to(users).emit("read-chats", { conversationId, readerId });
       }
     }
-  });
-
-  socket.on("connection_error", (err) => {
-    console.log("invalid credentials");
-    console.log(err);
   });
 });
 

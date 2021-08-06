@@ -1,5 +1,5 @@
 import axios from "axios";
-import socket from "../../socket";
+import socket, { reInitializeSocket } from "../../socket";
 import {
   gotConversations,
   addConversation,
@@ -23,10 +23,8 @@ export const fetchUser = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
-    const token = await localStorage.getItem("messenger-token");
-    socket.auth.tokne = token;
     if (data.id) {
-      socket.emit("go-online");
+      socket.socket.emit("go-online");
     }
   } catch (error) {
     console.error(error);
@@ -40,7 +38,6 @@ export const register = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.auth.token = data.token;
     socket.emit("go-online");
   } catch (error) {
     console.error(error);
@@ -53,9 +50,10 @@ export const login = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.auth.token = data.token;
-    socket.emit("go-online");
+    await reInitializeSocket();
+    socket.socket.emit("go-online");
   } catch (error) {
+    console.log(error);
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
   }
@@ -89,7 +87,7 @@ const saveMessage = async (body) => {
 };
 
 const sendMessage = (data, body) => {
-  socket.emit("new-message", {
+  socket.socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
     sender: data.sender,
@@ -130,7 +128,11 @@ export const readMessages =
       if (res.data.success) {
         dispatch(clearUnReadChats(conversationId));
         //notify that the user reads the message throughout the socket
-        socket.emit("read-chats", { conversationId, readerId, recipientId });
+        socket.socket.emit("read-chats", {
+          conversationId,
+          readerId,
+          recipientId,
+        });
       }
     } catch (error) {
       console.error(error);
