@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Redirect } from "react-router-dom";
 import { connect } from "react-redux";
@@ -19,12 +19,10 @@ const Home = ({ classes, fetchConversations, user, logout }) => {
 
   useEffect(() => {
     setIsLoggedIn(true);
-    console.log("set logging to true");
   }, [user]);
 
   useEffect(() => {
     fetchConversations();
-    console.log("fetching conversations");
   }, [fetchConversations]);
 
   const handleLogout = async () => {
@@ -55,7 +53,6 @@ const Home = ({ classes, fetchConversations, user, logout }) => {
 const mapStateToProps = (state) => {
   return {
     user: state.user,
-    conversations: state.conversations,
   };
 };
 

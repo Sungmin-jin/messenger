@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import { FormControl, FilledInput, InputAdornment } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import { withStyles } from "@material-ui/core/styles";
