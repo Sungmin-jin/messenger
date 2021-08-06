@@ -1,5 +1,5 @@
 import axios from "axios";
-import socket from "../../socket";
+import socket, { reInitializeSocket } from "../../socket";
 import {
   gotConversations,
   addConversation,
@@ -24,7 +24,7 @@ export const fetchUser = () => async (dispatch) => {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
     if (data.id) {
-      socket.emit("go-online", data.id);
+      socket.socket.emit("go-online");
     }
   } catch (error) {
     console.error(error);
@@ -38,7 +38,7 @@ export const register = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+    socket.socket.emit("go-online");
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -50,8 +50,10 @@ export const login = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+    await reInitializeSocket();
+    socket.socket.emit("go-online");
   } catch (error) {
+    console.log(error);
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
   }
@@ -62,7 +64,7 @@ export const logout = (id) => async (dispatch) => {
     await axios.delete("/auth/logout");
     await localStorage.removeItem("messenger-token");
     dispatch(gotUser({}));
-    socket.emit("logout", id);
+    socket.socket.emit("logout");
   } catch (error) {
     console.error(error);
   }
@@ -85,7 +87,7 @@ const saveMessage = async (body) => {
 };
 
 const sendMessage = (data, body) => {
-  socket.emit("new-message", {
+  socket.socket.emit("new-message", {
     message: data.message,
     recipientId: body.recipientId,
     sender: data.sender,
@@ -119,15 +121,20 @@ export const searchUsers = (searchTerm) => async (dispatch) => {
 };
 
 //when user read unread messages, update the databse and reducer
-export const readMessages = (conversationId, readerId) => async (dispatch) => {
-  try {
-    const res = await axios.put("/api/messages/read", { conversationId });
-    if (res.data.success) {
-      dispatch(clearUnReadChats(conversationId));
-      //notify that the user reads the message throughout the socket
-      socket.emit("read-chats", conversationId, readerId);
+export const readMessages =
+  (conversationId, readerId, recipientId) => async (dispatch) => {
+    try {
+      const res = await axios.put("/api/messages/read", { conversationId });
+      if (res.data.success) {
+        dispatch(clearUnReadChats(conversationId));
+        //notify that the user reads the message throughout the socket
+        socket.socket.emit("read-chats", {
+          conversationId,
+          readerId,
+          recipientId,
+        });
+      }
+    } catch (error) {
+      console.error(error);
     }
-  } catch (error) {
-    console.error(error);
-  }
-};
+  };
