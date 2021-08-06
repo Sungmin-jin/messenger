@@ -7,7 +7,9 @@ import {
   readMyChats,
 } from "./store/conversations";
 
-const socket = io(window.location.origin);
+const socket = io(window.location.origin, {
+  auth: { token: localStorage.getItem("messenger-token") },
+});
 
 socket.on("connect", () => {
   socket.on("add-online-user", (id) => {
@@ -18,7 +20,9 @@ socket.on("connect", () => {
     store.dispatch(removeOfflineUser(id));
   });
   socket.on("new-message", (data) => {
-    store.dispatch(setNewMessage(data.message, data.sender, true));
+    store.dispatch(
+      setNewMessage(data.message, data.sender, data.fromOtherUser)
+    );
   });
 
   //data contains conversationId, readerId

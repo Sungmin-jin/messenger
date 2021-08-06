@@ -26,7 +26,7 @@ const Messages = (props) => {
   };
 
   const lastReadMessageIndex = useMemo(
-    () => calclastReadMessageIndex(messages, userId, otherUser.id),
+    () => calclastReadMessageIndex(messages, userId),
     [messages, userId]
   );
 

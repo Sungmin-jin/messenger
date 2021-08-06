@@ -23,8 +23,10 @@ export const fetchUser = () => async (dispatch) => {
   try {
     const { data } = await axios.get("/auth/user");
     dispatch(gotUser(data));
+    const token = await localStorage.getItem("messenger-token");
+    socket.auth.tokne = token;
     if (data.id) {
-      socket.emit("go-online", data.id);
+      socket.emit("go-online");
     }
   } catch (error) {
     console.error(error);
@@ -38,7 +40,8 @@ export const register = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/register", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+    socket.auth.token = data.token;
+    socket.emit("go-online");
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -50,7 +53,8 @@ export const login = (credentials) => async (dispatch) => {
     const { data } = await axios.post("/auth/login", credentials);
     await localStorage.setItem("messenger-token", data.token);
     dispatch(gotUser(data));
-    socket.emit("go-online", data.id);
+    socket.auth.token = data.token;
+    socket.emit("go-online");
   } catch (error) {
     console.error(error);
     dispatch(gotUser({ error: error.response.data.error || "Server Error" }));
@@ -62,7 +66,7 @@ export const logout = (id) => async (dispatch) => {
     await axios.delete("/auth/logout");
     await localStorage.removeItem("messenger-token");
     dispatch(gotUser({}));
-    socket.emit("logout", id);
+    socket.emit("logout");
   } catch (error) {
     console.error(error);
   }
