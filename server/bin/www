@@ -75,6 +75,7 @@ io.on("connection", (socket) => {
       (socketId) => socketId != socket.id
     );
 
+    //send a message to every device that recipient has
     if (onlineUsers[recipientId]) {
       for (const users of onlineUsers[recipientId]) {
         socket.to(users).emit("new-message", {
@@ -84,6 +85,8 @@ io.on("connection", (socket) => {
         });
       }
     }
+
+    //send a message to my other devices
     if (myOtherDevices !== 0) {
       for (const myDevice of myOtherDevices) {
         socket.to(myDevice).emit("new-message", {
