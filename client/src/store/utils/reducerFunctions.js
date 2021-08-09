@@ -1,22 +1,24 @@
 export const addMessageToStore = (state, payload) => {
-  const { message, sender } = payload;
+  const { message, sender, fromOtherUser } = payload;
   // if sender isn't null, that means the message needs to be put in a brand new convo
   if (sender !== null) {
     const newConvo = {
       id: message.conversationId,
       otherUser: sender,
       messages: [message],
+      unReadCount: fromOtherUser ? 1 : 0,
     };
     newConvo.latestMessageText = message.text;
     return [newConvo, ...state];
   }
-
   return state.map((convo) => {
     if (convo.id === message.conversationId) {
       const convoCopy = { ...convo };
       convoCopy.messages.push(message);
       convoCopy.latestMessageText = message.text;
-
+      if (fromOtherUser) {
+        convoCopy.unReadCount++;
+      }
       return convoCopy;
     } else {
       return convo;
@@ -60,7 +62,7 @@ export const addSearchedUsersToStore = (state, users) => {
   users.forEach((user) => {
     // only create a fake convo if we don't already have a convo with this user
     if (!currentUsers[user.id]) {
-      let fakeConvo = { otherUser: user, messages: [] };
+      let fakeConvo = { otherUser: user, messages: [], unReadCount: 0 };
       newState.push(fakeConvo);
     }
   });
@@ -75,6 +77,36 @@ export const addNewConvoToStore = (state, recipientId, message) => {
       newConvo.id = message.conversationId;
       newConvo.messages.push(message);
       newConvo.latestMessageText = message.text;
+      return newConvo;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const clearUnreadChatsFromStore = (state, conversationId) => {
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const newConvo = { ...convo };
+      newConvo.unReadCount = 0;
+      return newConvo;
+    } else {
+      return convo;
+    }
+  });
+};
+
+export const clearMyUnreadChatsFromStore = (state, payload) => {
+  const { conversationId, readerId } = payload;
+  return state.map((convo) => {
+    if (convo.id === conversationId) {
+      const newConvo = { ...convo };
+      newConvo.messages = convo.messages.map((msg) => {
+        if (msg.senderId !== readerId) {
+          msg.isRead = true;
+        }
+        return msg;
+      });
       return newConvo;
     } else {
       return convo;

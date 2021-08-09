@@ -1,7 +1,14 @@
 const Sequelize = require("sequelize");
+require("dotenv").config();
 
-const db = new Sequelize(process.env.DATABASE_URL || "postgres://localhost:5432/messenger", {
-  logging: false
-});
+const db = new Sequelize(
+  process.env.DB_NAME,
+  process.env.DB_USERNAME,
+  process.env.DB_PASSWORD,
+  {
+    host: "localhost",
+    dialect: "postgres",
+  }
+);
 
 module.exports = db;

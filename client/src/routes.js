@@ -5,6 +5,7 @@ import { fetchUser } from "./store/utils/thunkCreators";
 import Signup from "./Signup.js";
 import Login from "./Login.js";
 import { Home, SnackbarError } from "./components";
+import socket from "./socket";
 
 const Routes = (props) => {
   const { user, fetchUser } = props;
@@ -13,6 +14,11 @@ const Routes = (props) => {
 
   useEffect(() => {
     fetchUser();
+
+    //when user refresh, clear up old socket id in the server
+    return () => {
+      socket.socket.emit("logout");
+    };
   }, [fetchUser]);
 
   useEffect(() => {
