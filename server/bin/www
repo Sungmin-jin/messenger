@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
     }
 
     //send a message to my other devices
-    if (myOtherDevices !== 0) {
+    if (myOtherDevices.length !== 0) {
       for (const myDevice of myOtherDevices) {
         socket.to(myDevice).emit("new-message", {
           message: message,
