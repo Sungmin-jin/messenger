@@ -1,25 +1,25 @@
 import React, { useEffect, useState } from "react";
 import { Route, Switch, withRouter } from "react-router-dom";
-import { connect } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { fetchUser } from "./store/utils/thunkCreators";
 import Signup from "./Signup.js";
 import Login from "./Login.js";
 import { Home, SnackbarError } from "./components";
 import socket from "./socket";
 
-const Routes = (props) => {
-  const { user, fetchUser } = props;
+const Routes = () => {
+  const dispatch = useDispatch();
   const [errorMessage, setErrorMessage] = useState("");
   const [snackBarOpen, setSnackBarOpen] = useState(false);
-
+  const user = useSelector((state) => state.user);
   useEffect(() => {
-    fetchUser();
+    dispatch(fetchUser());
 
     //when user refresh, clear up old socket id in the server
     return () => {
       socket.socket.emit("logout");
     };
-  }, [fetchUser]);
+  }, [dispatch]);
 
   useEffect(() => {
     if (user.error) {
@@ -33,7 +33,7 @@ const Routes = (props) => {
     }
   }, [user.error]);
 
-  if (props.user.isFetchingUser) {
+  if (user.isFetchingUser) {
     return <div>Loading...</div>;
   }
 
@@ -60,18 +60,4 @@ const Routes = (props) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    fetchUser() {
-      dispatch(fetchUser());
-    },
-  };
-};
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Routes));
+export default withRouter(Routes);

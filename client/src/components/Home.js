@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { withStyles } from "@material-ui/core/styles";
 import { Redirect } from "react-router-dom";
-import { connect } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Grid, CssBaseline, Button } from "@material-ui/core";
 import { SidebarContainer } from "./Sidebar";
 import { ActiveChat } from "./ActiveChat";
@@ -14,19 +14,25 @@ const styles = {
   },
 };
 
-const Home = ({ classes, fetchConversations, user, logout }) => {
+const Home = ({ classes }) => {
+  const dispatch = useDispatch();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const user = useSelector((state) => state.user);
 
   useEffect(() => {
     setIsLoggedIn(true);
   }, [user]);
 
   useEffect(() => {
-    fetchConversations();
+    dispatch(fetchConversations());
   }, [fetchConversations]);
 
   const handleLogout = async () => {
-    await logout();
+    const logoutComb = async () => {
+      dispatch(logout());
+      dispatch(clearOnLogout());
+    };
+    await logoutComb();
   };
 
   return !user.id ? (
@@ -50,25 +56,4 @@ const Home = ({ classes, fetchConversations, user, logout }) => {
   );
 };
 
-const mapStateToProps = (state) => {
-  return {
-    user: state.user,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    logout: () => {
-      dispatch(logout());
-      dispatch(clearOnLogout());
-    },
-    fetchConversations: () => {
-      dispatch(fetchConversations());
-    },
-  };
-};
-
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(withStyles(styles)(Home));
+export default withStyles(styles)(Home);
